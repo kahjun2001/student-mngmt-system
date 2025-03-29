@@ -11,7 +11,7 @@ class ExamMarkController extends Controller
      */
     public function index()
     {
-        //
+        return view("exams.index");
     }
 
     /**

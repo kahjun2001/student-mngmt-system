@@ -10,6 +10,10 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
+    public function index()
+    {
+        return view("reports.index");
+    }
     // Export Average Marks for Each Student
     public function exportStudentAverages()
     {

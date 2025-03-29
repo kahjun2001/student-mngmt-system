@@ -2,9 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    //
+    use HasFactory;
+
+    protected $fillable = ['name','email','dob'];
+
+    public function examMarks()
+    {
+        return $this->hasMany(ExamMark::class);
+    }
 }

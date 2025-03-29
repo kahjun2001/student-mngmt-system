@@ -17,3 +17,7 @@ Route::resource('reports', ReportController::class);
 
 Route::get('/export/student-averages', [ReportController::class,'exportStudentAverages'])->name('export.student.averages');
 Route::get('/export/subject-averages', [ReportController::class,'exportSubjectAverages'])->name('export.subject.averages');
+Route::get('/students', [StudentController::class,'index'])->name('students.index');
+Route::get('/courses', [CourseController::class,'index'])->name('courses.index');
+Route::get('/exams', [ExamMarkController::class,'index'])->name('exams.index');
+Route::get('/reports', [ReportController::class,'index'])->name('reports.index');
