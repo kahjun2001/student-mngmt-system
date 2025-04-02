@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\Course;
+use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
@@ -21,7 +23,8 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return view("students.create");
+        $courses = Course::all(); 
+        return view("students.create", compact("courses"));
     }
 
     /**
@@ -29,27 +32,28 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validatedData = $request->validate([
             'name' => 'required|string|max:255',
-            'email'=> 'required|email|unique:students,email',
+            'email' => 'required|email|unique:students,email',
+            'phone' => 'required|string|max:15',
             'dob' => 'required|date',
+            'course_id' => 'required|exists:courses,id',
         ]);
 
-        Student::create([
-            'name'=> $request->name,
-            'email'=> $request->email,
-            'dob' => $request->dob,
-        ]);
+        $student = Student::create($validatedData);
 
-        return redirect()->route('students.index')->with('success','Student Added Successfully');
+        return redirect()->route('students.index')->with('success', 'Student added successfully!');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Student $student)
+    public function show($custom_id)
     {
-        return  view('students.show', compact('student'));
+        $student = Student::where('custom_id', $custom_id)->firstOrFail();
+        $subjects = $student->subjects;
+
+        return view('students.show', compact('student'));
     }
 
     /**
@@ -57,7 +61,8 @@ class StudentController extends Controller
      */
     public function edit(Student $student)
     {
-        return  view('students.edit', compact('student'));
+        $courses = Course::all();
+        return view('students.edit', compact('student', 'courses'));
     }
 
     /**
@@ -65,19 +70,23 @@ class StudentController extends Controller
      */
     public function update(Request $request, Student $student)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email'=> 'required|email|unique:students,email,' . $student->id,
-            'dob' => 'required|date',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:students,email,' . $student->id,
+                'phone' => 'required|string|max:15',
+                'dob' => 'required|date',
+                'course_id' => 'required|exists:courses,id'
+            ]);
 
-        $student->update([
-            'name'=> $request->name,
-            'email'=> $request->email,
-            'dob'=> $request->dob,
-        ]);
+            // Update student data
+            $student->update($validatedData);
 
-        return redirect()->route('students.index')->with('success','Student infomartion updated successfully');
+            return redirect()->route('students.index')->with('success', 'Student information updated successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error updating student: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Something went wrong! ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -85,7 +94,13 @@ class StudentController extends Controller
      */
     public function destroy(Student $student)
     {
-        $student->delete();
-        return redirect()->route('students.index')->with('success','Student deleted successfully');
+        try {
+            $student->delete();
+            return redirect()->route('students.index')->with('success', 'Student deleted successfully.');
+        } catch (\Exception $e) {
+            Log::error('Error deleting student: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Something went wrong! ' . $e->getMessage()]);
+        }
     }
+
 }

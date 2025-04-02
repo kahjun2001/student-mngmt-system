@@ -9,10 +9,15 @@ class ExamMark extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['student_id', 'subject', 'marks']; // Ensure 'subject' is listed
+    protected $fillable = ['student_id', 'subject', 'marks'];
 
     public function student()
     {
         return $this->belongsTo(Student::class);
     }
+
+    public function subject()
+{
+    return $this->belongsTo(Subject::class);
+}
 }
