@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\Subject;
+use App\Models\ExamMark;
+
 
 class ExamMarkController extends Controller
 {
@@ -27,24 +29,28 @@ class ExamMarkController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store($studentCustomId, $subjectCode, Request $request)
+    public function store(Request $request)
     {
-        // Retrieve the student by custom_id
-        $student = Student::where('custom_id', $studentCustomId)->firstOrFail();
-
-        // Retrieve the subject by subject_code
-        $subject = Subject::where('subject_code', $subjectCode)->firstOrFail();
+        // dd($request->all());
+        // Validate the request
+        $validated = $request->validate([
+            'subject_code' => 'required|exists:subjects,subject_code',
+            'student_custom_id' => 'required|exists:students,custom_id',
+            'marks' => 'required|numeric|min:0|max:100',
+        ]);
 
         // Create a new ExamMark instance
-        $examMark = new ExamMark();
-        $examMark->student_id = $student->id;  // Use student ID, not custom_id, for relationship
-        $examMark->subject_id = $subject->id;  // Use subject ID, not subject_code, for relationship
-        $examMark->mark = $request->mark;     // Store the mark from the form
-        $examMark->save();
+        ExamMark::create([
+            'student_custom_id' => $request->student_custom_id,
+            'subject_code' => $request->subject_code,
+            'marks' => $request->marks,
+        ]);
 
-        // Redirect back to the student's report page with a success message
-        return redirect()->route('students.show', $student->custom_id)->with('success', 'Mark added successfully');
+        // Redirect back with success message
+        return redirect()->route('students.show', $request->student_custom_id)
+            ->with('success', 'Mark added successfully');
     }
+
 
     /**
      * Display the specified resource.

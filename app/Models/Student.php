@@ -13,7 +13,7 @@ class Student extends Model
 
     public function examMarks()
     {
-        return $this->hasMany(ExamMark::class);
+        return $this->hasMany(ExamMark::class, 'student_custom_id', 'custom_id');
     }
 
     public function course()
@@ -23,7 +23,7 @@ class Student extends Model
 
     public function subjects()
     {
-    return $this->belongsToMany(Subject::class);
+    return $this->belongsToMany(Subject::class, 'student_subject', 'student_custom_id', 'subject_code');
     }
 
     protected static function boot()

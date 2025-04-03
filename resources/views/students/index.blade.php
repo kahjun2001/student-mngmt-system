@@ -3,7 +3,10 @@
 @section('content')
     <div class="container mx-auto">
         <h1 class="text-2xl font-bold mb-4">Students</h1>
-        <a href="{{ route('students.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Add Student</a>
+        <div class="mb-4">
+            <a href="{{ route('students.create') }}" class="bg-blue-500 text-white px-4 py-2 rounded">Add Student</a>
+            <a href="{{ route('students.export') }}" class="bg-green-500 text-white px-4 py-2 rounded ml-4">Export</a>
+        </div>
 
         <table class="min-w-full bg-white border border-gray-300 mt-4">
             <thead>
@@ -22,7 +25,7 @@
                     <tr class="text-center">
                         <td class="py-2 px-4 border">{{ $student->id }}</td>
                         <td class="py-2 px-4 border">{{ $student->custom_id }}</td>
-                        <td><a href="{{ route('students.show', $student->custom_id) }}">{{ $student->name }}</a></td>
+                        <td class="py-2 px-4 border"><a href="{{ route('students.show', $student->custom_id) }}">{{ $student->name }}</a></td>
                         <td class="py-2 px-4 border">{{ $student->email }}</td>
                         <td class="py-2 px-4 border">{{ $student->phone }}</td>
                         <td class="py-2 px-4 border">{{ $student->course->name ?? 'N/A' }}</td>

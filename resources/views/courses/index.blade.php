@@ -10,24 +10,24 @@
         @endif
 
         <div class="overflow-x-auto mt-4">
-            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-md">
+            <table class="min-w-full bg-white border border-gray-300 mt-4">
                 <thead>
-                    <tr class="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
-                        <th class="py-3 px-4 border">#</th>
-                        <th class="py-3 px-4 border">ID</th>
-                        <th class="py-3 px-4 border">Name</th>
-                        <th class="py-3 px-4 border">Number of Students</th>
-                        <th class="py-3 px-4 border">Actions</th>
+                    <tr class="bg-gray-200">
+                        <th class="py-2 px-4 border">#</th>
+                        <th class="py-2 px-4 border">ID</th>
+                        <th class="py-2 px-4 border">Name</th>
+                        <th class="py-2 px-4 border">Number of Students</th>
+                        <th class="py-2 px-4 border">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm font-light">
                     @foreach ($courses as $course)
                         <tr class="border-b hover:bg-gray-100 transition">
-                            <td class="py-3 px-4 border text-center">{{ $loop->iteration }}</td>
-                            <td class="py-3 px-4 border">{{ $course->code }}</td>
-                            <td class="py-3 px-4 border">{{ $course->name }}</td>
-                            <td class="py-3 px-4 border">{{ $course->students->count() }}</td>
-                            <td class="py-3 px-4 border flex space-x-2 justify-center">
+                            <td class="py-2 px-4 border text-center">{{ $loop->iteration }}</td>
+                            <td class="py-2 px-4 border">{{ $course->code }}</td>
+                            <td class="py-2 px-4 border">{{ $course->name }}</td>
+                            <td class="py-2 px-4 border">{{ $course->students->count() }}</td>
+                            <td class="py-2 px-4 border flex space-x-2 justify-center">
                                 <a href="{{ route('courses.edit', $course->id) }}" class="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600 transition">Edit</a>
                                 <form action="{{ route('courses.destroy', $course->id) }}" method="POST" class="inline-block">
                                     @csrf

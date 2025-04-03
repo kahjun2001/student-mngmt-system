@@ -4,7 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Student;
+use App\Models\ExamMark;
 use App\Models\Course;
+use App\Models\Subject;
+use Illuminate\Support\Facades\Response;
+use League\Csv\Writer;
+use SplTempFileObject;
 use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
@@ -48,13 +53,21 @@ class StudentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($custom_id)
+    public function show($studentCustomId)
     {
-        $student = Student::where('custom_id', $custom_id)->firstOrFail();
-        $subjects = $student->subjects;
+        $student = Student::where('custom_id', $studentCustomId)->firstOrFail();
 
-        return view('students.show', compact('student'));
+        $course = $student->course;
+
+        if (!$course) {
+            return redirect()->route('students.index')->withErrors('This student is not enrolled in any course.');
+        }
+
+        $subjects = $course->subjects;
+
+        return view('students.show', compact('student', 'subjects'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
@@ -102,5 +115,45 @@ class StudentController extends Controller
             return back()->withErrors(['error' => 'Something went wrong! ' . $e->getMessage()]);
         }
     }
+
+    public function detachSubject($studentCustomId, $subjectCode)
+    {
+        $student = Student::where('custom_id', $studentCustomId)->firstOrFail();
+        $subject = Subject::where('subject_code', $subjectCode)->firstOrFail();
+
+        // Detach the subject from the student
+        $student->subjects()->detach($subject->id);
+
+        return redirect()->route('students.show', $studentCustomId)->with('success', 'Subject removed successfully');
+    }
+
+    public function export()
+    {
+        $students = Student::with('examMarks')->get();
+
+        $fileName = 'students_average_marks.csv';
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $callback = function () use ($students) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Student ID', 'Name', 'Average Mark']);
+
+            foreach ($students as $student) {
+                $averageMark = $student->examMarks->avg('marks') ?? 0;
+                fputcsv($file, [$student->custom_id, $student->name, round($averageMark, 2)]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
 
 }

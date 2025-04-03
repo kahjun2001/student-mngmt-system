@@ -5,6 +5,7 @@
         <h1 class="text-2xl font-bold mb-4">Subjects</h1>
 
         <a href="{{ route('subjects.create') }}" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition">Add Subject</a>
+        <a href="{{ route('subjects.export') }}" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition">Export Subject Averages</a>
 
         @if(session('success'))
             <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mt-4">
@@ -27,7 +28,7 @@
                     @foreach ($subjects as $subject)
                         <tr class="text-center">
                             <td class="border border-gray-300 px-4 py-2">{{ $loop->iteration }}</td>
-                            <td><a href="{{ route('subjects.show', $subject->subject_code) }}">{{ $subject->name }}</a></td>
+                            <td class="border border-gray-300 px-4 py-2"><a href="{{ route('subjects.show', $subject->subject_code) }}">{{ $subject->name }}</a></td>
                             <td class="border border-gray-300 px-4 py-2">{{ $subject->subject_code }}</td>
                             <td class="border border-gray-300 px-4 py-2">
                                 @foreach($subject->courses as $course)

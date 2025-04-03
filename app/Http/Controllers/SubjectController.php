@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Subject;
 use App\Models\Course;
+use Illuminate\Support\Facades\Response;
+use League\Csv\Writer;
+use SplTempFileObject;
 use Illuminate\Http\Request;
 
 class SubjectController extends Controller
@@ -78,6 +81,34 @@ class SubjectController extends Controller
         })->avg('mark');
         
         return view('subjects.show', compact('subject', 'averageMark'));
+    }
+
+    public function export()
+    {
+        $subjects = Subject::with('examMarks')->get();  // Retrieve subjects with exam marks
+
+        $fileName = 'subject_averages.csv';
+        $headers = [
+            "Content-type" => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma" => "no-cache",
+            "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+            "Expires" => "0"
+        ];
+
+        $callback = function () use ($subjects) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['Subject Code', 'Subject Name', 'Average Mark']);  // Add header
+
+            foreach ($subjects as $subject) {
+                $averageMark = $subject->examMarks->avg('marks') ?? 0;  // Calculate average mark
+                fputcsv($file, [$subject->subject_code, $subject->name, round($averageMark, 2)]);  // Write to CSV
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);  // Return CSV as response
     }
 
 }
